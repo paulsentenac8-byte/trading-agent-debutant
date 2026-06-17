@@ -602,6 +602,41 @@ def run_pipeline(config_path: str) -> None:
             )
             save_json_artifact("action_center.json", action_center, str(report_dir))
 
+            # First-pass audit manifest on already generated artifacts
+            audit_manifest = build_audit_manifest(
+                config_path=config_path,
+                artifact_paths=[
+                    report_dir / "ranked_signals.csv",
+                    report_dir / "orders_to_review.csv",
+                    report_dir / "risk_summary.json",
+                    report_dir / "stress_test_summary.json",
+                    report_dir / "walkforward_summary.json",
+                    report_dir / "validation_summary.json",
+                    report_dir / "meta_risk_summary.json",
+                    report_dir / "kill_switch_summary.json",
+                    report_dir / "broker_health_summary.json",
+                    report_dir / "monitoring_summary.json",
+                    report_dir / "data_quality_summary.json",
+                    report_dir / "decision_journal.json",
+                    report_dir / "readiness_summary.json",
+                ],
+            )
+            save_json_artifact("audit_manifest.json", audit_manifest.to_dict(), str(report_dir))
+
+            regression_checklist = build_regression_checklist(
+                {
+                    "pipeline_status": True,
+                    "ranked_signals": (report_dir / "ranked_signals.csv").exists(),
+                    "risk_summary": (report_dir / "risk_summary.json").exists(),
+                    "stress_test_summary": (report_dir / "stress_test_summary.json").exists(),
+                    "walkforward_summary": (report_dir / "walkforward_summary.json").exists(),
+                    "monitoring_summary": (report_dir / "monitoring_summary.json").exists(),
+                    "audit_manifest": (report_dir / "audit_manifest.json").exists(),
+                }
+            )
+            save_json_artifact("regression_checklist.json", regression_checklist.to_dict(), str(report_dir))
+
+            # Final audit manifest now includes regression checklist existence too
             audit_manifest = build_audit_manifest(
                 config_path=config_path,
                 artifact_paths=[
@@ -619,6 +654,7 @@ def run_pipeline(config_path: str) -> None:
                     report_dir / "decision_journal.json",
                     report_dir / "readiness_summary.json",
                     report_dir / "regression_checklist.json",
+                    report_dir / "audit_manifest.json",
                 ],
             )
             save_json_artifact("audit_manifest.json", audit_manifest.to_dict(), str(report_dir))
@@ -663,19 +699,6 @@ def run_pipeline(config_path: str) -> None:
                 anomaly_summary=anomaly_summary.to_dict(),
                 regression_checklist=regression_checklist.to_dict(),
             )
-
-            regression_checklist = build_regression_checklist(
-                {
-                    "pipeline_status": True,
-                    "ranked_signals": (report_dir / "ranked_signals.csv").exists(),
-                    "risk_summary": (report_dir / "risk_summary.json").exists(),
-                    "stress_test_summary": (report_dir / "stress_test_summary.json").exists(),
-                    "walkforward_summary": (report_dir / "walkforward_summary.json").exists(),
-                    "monitoring_summary": (report_dir / "monitoring_summary.json").exists(),
-                    "audit_manifest": (report_dir / "audit_manifest.json").exists(),
-                }
-            )
-            save_json_artifact("regression_checklist.json", regression_checklist.to_dict(), str(report_dir))
 
             pipeline_status = {
                 "state": "completed",
