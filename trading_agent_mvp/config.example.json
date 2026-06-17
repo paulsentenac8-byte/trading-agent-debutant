@@ -113,5 +113,8 @@
     "min_history_bars": 220,
     "max_stale_days": 7,
     "min_coverage_ratio": 0.8
+  },
+  "database": {
+    "path": "data/trading_agent.sqlite"
   }
 }

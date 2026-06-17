@@ -10,6 +10,8 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
+from src.storage import load_history_summary
+
 try:
     from streamlit_autorefresh import st_autorefresh
 except Exception:  # pragma: no cover
@@ -478,7 +480,7 @@ def maybe_bootstrap_and_autorun(app_state: dict[str, Any], pipeline_status: dict
 
 
 def main() -> None:
-    st.set_page_config(page_title="Assistant Trading Débutant", layout="wide")
+    st.set_page_config(page_title="Assistant Trading Débutant", layout="wide", initial_sidebar_state="expanded")
     ensure_session_defaults()
     inject_css()
 
@@ -521,9 +523,36 @@ def main() -> None:
     data_quality_summary = read_json_safe(str(REPORTS_DIR / "data_quality_summary.json"))
     exposure_summary = read_json_safe(str(REPORTS_DIR / "exposure_summary.json"))
     decision_journal = read_json_safe(str(REPORTS_DIR / "decision_journal.json"))
+    history_summary = load_history_summary(cfg.get("database", {}).get("path", "data/trading_agent.sqlite")).to_dict() if cfg else {"runs": [], "recent_signals": [], "recent_orders": []}
 
     show_hero(app_state, pipeline_status, cfg)
     show_action_center(action_center, risk_summary, pipeline_status)
+
+    st.markdown("### Actions rapides")
+    qa1, qa2, qa3 = st.columns(3)
+    if qa1.button("Lancer tout maintenant", type="primary", use_container_width=True, key="top_run_now"):
+        with st.spinner("Analyse + préparation broker en cours..."):
+            ok = run_analysis_cycle(auto_preview=bool(app_state.get("auto_preview", True)))
+        if ok:
+            st.success("Analyse lancée depuis la page principale.")
+        else:
+            st.error("Le lancement a échoué. Regarde l'onglet Détails et aide.")
+        st.rerun()
+    if qa2.button("Préparer le broker", use_container_width=True, key="top_prepare_preview"):
+        ok = generate_preview()
+        if ok:
+            st.success("Preview broker préparé.")
+        else:
+            st.error("Impossible de préparer le preview broker.")
+        st.rerun()
+    if qa3.button("Vérifier l'installation", use_container_width=True, key="top_run_doctor"):
+        ok = run_doctor()
+        if ok:
+            st.success("Diagnostic OK.")
+        else:
+            st.error("Le diagnostic a trouvé un problème. Regarde l'onglet Détails et aide.")
+
+    st.caption("Si tu ne vois pas la barre latérale, utilise ces boutons rapides au centre de la page.")
 
     with st.sidebar:
         st.header("Réglages simples")
@@ -596,6 +625,10 @@ def main() -> None:
     c15, c16 = st.columns(2)
     c15.metric("Readiness", readiness_summary.get("readiness_score", "n/a"))
     c16.metric("Anomalies", anomaly_summary.get("flagged_orders", 0) + anomaly_summary.get("flagged_signals", 0) if anomaly_summary else "n/a")
+
+    c17, c18 = st.columns(2)
+    c17.metric("Scans mémorisés", len(history_summary.get("runs", [])))
+    c18.metric("Signaux mémorisés", len(history_summary.get("recent_signals", [])))
 
     step1_done = bool(pipeline_status)
     step2_done = not ranked.empty
@@ -840,6 +873,9 @@ Au début, garde toujours le **mode démo uniquement**.
 
         with st.expander("Journal de décision"):
             st.json(decision_journal or {"info": "Aucun journal de décision disponible."})
+
+        with st.expander("Mémoire / historique"):
+            st.json(history_summary or {"info": "Aucun historique disponible."})
 
         with st.expander("Anomalies détectées"):
             st.json(anomaly_summary or {"info": "Aucun résumé d'anomalies disponible."})

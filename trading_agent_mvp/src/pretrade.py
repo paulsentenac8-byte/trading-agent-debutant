@@ -6,6 +6,7 @@ from typing import Any
 import pandas as pd
 
 from .config import PreTradeConfig
+from .scalars import to_float, to_int
 
 
 @dataclass
@@ -47,15 +48,15 @@ def apply_pretrade_controls(trade_plan: pd.DataFrame, capital: float, config: Pr
         return out, PreTradeSummary(input_orders, 0, 0.0, notes or ["Tous les ordres ont été rejetés par les contrôles pré-trade."])
 
     for idx, row in out.iterrows():
-        close = float(row["close"])
-        avg_dollar_volume = float(row.get("avg_dollar_volume_20", 0.0))
-        qty = int(row["qty"])
+        close = to_float(row.get("close"))
+        avg_dollar_volume = to_float(row.get("avg_dollar_volume_20", 0.0))
+        qty = to_int(row.get("qty"))
         max_shares_by_adv = int((avg_dollar_volume * config.max_order_adv_fraction) / close) if close > 0 and avg_dollar_volume > 0 else qty
         if max_shares_by_adv > 0 and qty > max_shares_by_adv:
             out.at[idx, "qty"] = max_shares_by_adv
             notes.append(f"{row['symbol']}: quantité réduite par limite ADV.")
 
-        single_name_risk = float(row.get("risk_amount", 0.0))
+        single_name_risk = to_float(row.get("risk_amount", 0.0))
         max_single_name_risk_amount = capital * config.max_single_name_risk_pct
         if single_name_risk > max_single_name_risk_amount and single_name_risk > 0:
             scale = max_single_name_risk_amount / single_name_risk

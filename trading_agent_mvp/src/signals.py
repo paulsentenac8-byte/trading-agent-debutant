@@ -6,6 +6,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from .scalars import to_float
+
 
 @dataclass
 class MarketContext:
@@ -22,12 +24,12 @@ def infer_market_regime(benchmark_features: pd.DataFrame, override: str | None =
         return override.lower()
 
     row = benchmark_features.iloc[-1]
-    close = float(row["Adj Close"])
-    sma_50 = float(row["sma_50"])
-    sma_200 = float(row["sma_200"])
-    vol_20 = float(row["vol_20"])
-    drawdown_60 = float(row.get("drawdown_60", 0.0))
-    mom_20 = float(row.get("mom_20", 0.0))
+    close = to_float(row.get("Adj Close"))
+    sma_50 = to_float(row.get("sma_50"))
+    sma_200 = to_float(row.get("sma_200"))
+    vol_20 = to_float(row.get("vol_20"))
+    drawdown_60 = to_float(row.get("drawdown_60", 0.0))
+    mom_20 = to_float(row.get("mom_20", 0.0))
 
     if close > sma_50 > sma_200:
         if vol_20 < 0.22 and drawdown_60 > -0.06:

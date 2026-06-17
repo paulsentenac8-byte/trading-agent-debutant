@@ -5,6 +5,8 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
+from .scalars import to_float
+
 
 def compute_rsi(series: pd.Series, window: int = 14) -> pd.Series:
     delta = series.diff()
@@ -82,29 +84,29 @@ def latest_snapshot(df: pd.DataFrame) -> dict:
     row = df.iloc[-1]
     return {
         "date": str(df.index[-1].date()),
-        "close": float(row["Adj Close"]),
-        "sma_20": float(row["sma_20"]),
-        "sma_50": float(row["sma_50"]),
-        "sma_200": float(row["sma_200"]),
-        "mom_20": float(row["mom_20"]),
-        "mom_60": float(row["mom_60"]),
-        "mom_120": float(row["mom_120"]),
-        "vol_20": float(row["vol_20"]),
-        "avg_dollar_volume_20": float(row["avg_dollar_volume_20"]),
-        "rsi_14": float(row["rsi_14"]),
-        "atr_14": float(row["atr_14"]),
-        "atr_pct_14": float(row["atr_pct_14"]),
-        "breakout_20": float(row["breakout_20"]),
-        "breakout_60": float(row["breakout_60"]),
-        "rel_strength_20": float(row["rel_strength_20"]),
-        "rel_strength_60": float(row["rel_strength_60"]),
-        "dist_sma20_pct": float(row["dist_sma20_pct"]),
-        "dist_sma50_pct": float(row["dist_sma50_pct"]),
-        "dist_sma200_pct": float(row["dist_sma200_pct"]),
-        "drawdown_20": float(row["drawdown_20"]),
-        "drawdown_60": float(row["drawdown_60"]),
-        "volume_ratio_20": float(row["volume_ratio_20"]),
-        "price_zscore_20": float(row["price_zscore_20"]),
-        "sma50_slope_20": float(row["sma50_slope_20"]),
-        "sma200_slope_20": float(row["sma200_slope_20"]),
+        "close": to_float(row.get("Adj Close")),
+        "sma_20": to_float(row.get("sma_20")),
+        "sma_50": to_float(row.get("sma_50")),
+        "sma_200": to_float(row.get("sma_200")),
+        "mom_20": to_float(row.get("mom_20")),
+        "mom_60": to_float(row.get("mom_60")),
+        "mom_120": to_float(row.get("mom_120")),
+        "vol_20": to_float(row.get("vol_20")),
+        "avg_dollar_volume_20": to_float(row.get("avg_dollar_volume_20")),
+        "rsi_14": to_float(row.get("rsi_14")),
+        "atr_14": to_float(row.get("atr_14")),
+        "atr_pct_14": to_float(row.get("atr_pct_14")),
+        "breakout_20": to_float(row.get("breakout_20")),
+        "breakout_60": to_float(row.get("breakout_60")),
+        "rel_strength_20": to_float(row.get("rel_strength_20")),
+        "rel_strength_60": to_float(row.get("rel_strength_60")),
+        "dist_sma20_pct": to_float(row.get("dist_sma20_pct")),
+        "dist_sma50_pct": to_float(row.get("dist_sma50_pct")),
+        "dist_sma200_pct": to_float(row.get("dist_sma200_pct")),
+        "drawdown_20": to_float(row.get("drawdown_20")),
+        "drawdown_60": to_float(row.get("drawdown_60")),
+        "volume_ratio_20": to_float(row.get("volume_ratio_20")),
+        "price_zscore_20": to_float(row.get("price_zscore_20")),
+        "sma50_slope_20": to_float(row.get("sma50_slope_20")),
+        "sma200_slope_20": to_float(row.get("sma200_slope_20")),
     }

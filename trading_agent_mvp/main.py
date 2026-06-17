@@ -41,9 +41,11 @@ from src.reporting import (
 )
 from src.risk import build_trade_plan
 from src.runtime import exclusive_lock, utc_now_iso
+from src.scalars import to_float, to_int
 from src.sector import apply_sector_limits
 from src.signals import MarketContext, infer_market_regime, rank_universe
 from src.sensitivity import run_sensitivity_analysis
+from src.storage import load_history_summary, store_pipeline_run
 from src.stress import run_stress_tests
 from src.validation import build_validation_summary
 from src.walkforward import WalkForwardSummary, run_walkforward_analysis
@@ -268,6 +270,7 @@ def run_pipeline(config_path: str) -> None:
                 benchmark_symbol=config.benchmark,
                 min_history_bars=config.data_quality.min_history_bars,
                 max_stale_days=config.data_quality.max_stale_days,
+                min_coverage_ratio=config.data_quality.min_coverage_ratio,
             )
             eligible_data = {s: market_data[s] for s in eligible_symbols if s in market_data}
             eligible_data[config.benchmark] = market_data[config.benchmark]
@@ -558,14 +561,14 @@ def run_pipeline(config_path: str) -> None:
                 for _, row in trade_plan.iterrows():
                     orders.append(
                         BrokerOrder(
-                            symbol=str(row["symbol"]),
+                            symbol=str(row.get("symbol")),
                             side="BUY",
-                            qty=int(row["qty"]),
+                            qty=to_int(row.get("qty")),
                             order_type="LMT",
-                            reference_price=float(row["close"]),
-                            stop_loss=float(row["stop_loss"]),
-                            take_profit=float(row["take_profit"]),
-                            rationale=str(row["reasons"]),
+                            reference_price=to_float(row.get("close")),
+                            stop_loss=to_float(row.get("stop_loss")),
+                            take_profit=to_float(row.get("take_profit")),
+                            rationale=str(row.get("reasons", "")),
                         )
                     )
                 ManualApprovalBroker().submit_orders(orders, str(report_dir / "orders_to_review.csv"))
@@ -700,6 +703,21 @@ def run_pipeline(config_path: str) -> None:
                 regression_checklist=regression_checklist.to_dict(),
             )
 
+            history_run_id = store_pipeline_run(
+                db_path=config.database.path,
+                regime=regime,
+                health_score=validation_summary.health_score,
+                readiness_score=readiness_summary.readiness_score,
+                ranked=ranked,
+                trade_plan=trade_plan,
+                report_payload={
+                    "context_summary": context_summary,
+                    "validation_status": validation_summary.status,
+                    "meta_confidence": meta_risk_summary.confidence_score,
+                    "kill_switch_blocked": kill_switch_summary.blocked if hasattr(kill_switch_summary, 'blocked') else bool(kill_switch_summary.get('blocked', False)),
+                },
+            )
+
             pipeline_status = {
                 "state": "completed",
                 "completed_at": utc_now_iso(),
@@ -725,6 +743,8 @@ def run_pipeline(config_path: str) -> None:
                 "readiness_status": readiness_summary.status,
                 "anomaly_count": anomaly_summary.flagged_orders + anomaly_summary.flagged_signals,
                 "regression_status": regression_checklist.status,
+                "history_run_id": history_run_id,
+                "database_path": config.database.path,
                 "report_dir": str(report_dir),
             }
             save_json_artifact("pipeline_status.json", pipeline_status, str(report_dir))

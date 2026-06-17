@@ -7,6 +7,8 @@ from typing import Any, Iterable
 
 import pandas as pd
 
+from .scalars import to_float, to_int
+
 
 @dataclass
 class BrokerOrder:
@@ -68,11 +70,11 @@ class IBKRManualApprovalBroker:
         payloads: list[dict[str, Any]] = []
 
         for _, row in approved.iterrows():
-            qty = int(row["qty"])
-            limit_price = float(row.get("limit_price", row.get("reference_price", 0.0)))
-            reference_price = float(row.get("reference_price", row.get("limit_price", 0.0)))
-            stop_loss = float(row["stop_loss"])
-            take_profit = float(row["take_profit"])
+            qty = to_int(row.get("qty"))
+            limit_price = to_float(row.get("limit_price", row.get("reference_price", 0.0)))
+            reference_price = to_float(row.get("reference_price", row.get("limit_price", 0.0)))
+            stop_loss = to_float(row.get("stop_loss"))
+            take_profit = to_float(row.get("take_profit"))
             if qty <= 0 or limit_price <= 0 or reference_price <= 0 or stop_loss <= 0 or take_profit <= 0:
                 continue
             payloads.append(

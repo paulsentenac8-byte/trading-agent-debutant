@@ -4,6 +4,8 @@ import math
 
 import pandas as pd
 
+from .scalars import to_float
+
 
 def estimate_stop_pct(close: float, atr_14: float) -> float:
     if close <= 0:
@@ -64,9 +66,9 @@ def build_trade_plan(
     risk_amount_list = []
 
     for _, row in selected.iterrows():
-        close = float(row["close"])
-        atr_14 = float(row["atr_14"])
-        score = float(row["score"])
+        close = to_float(row.get("close"))
+        atr_14 = to_float(row.get("atr_14"))
+        score = to_float(row.get("score"))
         stop_pct = estimate_stop_pct(close, atr_14)
         conviction = conviction_multiplier(score, min_score)
         qty = position_size(

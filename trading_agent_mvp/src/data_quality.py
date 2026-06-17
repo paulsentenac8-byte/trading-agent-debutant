@@ -32,6 +32,7 @@ def build_data_quality_summary(
     benchmark_symbol: str,
     min_history_bars: int = 220,
     max_stale_days: int = 7,
+    min_coverage_ratio: float = 0.8,
 ) -> DataQualitySummary:
     warnings: list[str] = []
     stale_symbols: list[str] = []
@@ -52,8 +53,8 @@ def build_data_quality_summary(
     coverage_ratio = float(len(market_data) / len(requested_symbols)) if requested_symbols else 0.0
     benchmark_present = benchmark_symbol in market_data
 
-    if coverage_ratio < 0.8:
-        warnings.append("Couverture de données faible: moins de 80% des symboles demandés téléchargés.")
+    if coverage_ratio < min_coverage_ratio:
+        warnings.append("Couverture de données faible: moins que le seuil minimal configuré.")
     if stale_symbols:
         warnings.append(f"Données potentiellement anciennes pour {len(stale_symbols)} symbole(s).")
     if short_history_symbols:

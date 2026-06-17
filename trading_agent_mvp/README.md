@@ -17,6 +17,7 @@ Base de trading orientée actions / ETF avec :
 - attribution facteurs,
 - diagnostics de performance vs benchmark,
 - qualité de données,
+- mémoire / historique SQLite,
 - journal de décision,
 - audit manifest,
 - santé broker / monitoring,
@@ -56,6 +57,7 @@ Base de trading orientée actions / ETF avec :
 ## Rapports produits
 - `reports/ranked_signals.csv`
 - `reports/orders_to_review.csv`
+- `data/trading_agent.sqlite`
 - `reports/risk_summary.json`
 - `reports/exposure_summary.json`
 - `reports/pretrade_summary.json`

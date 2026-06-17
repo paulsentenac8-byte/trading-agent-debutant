@@ -133,6 +133,11 @@ class DataQualityConfig:
 
 
 @dataclass
+class DatabaseConfig:
+    path: str = "data/trading_agent.sqlite"
+
+
+@dataclass
 class AppConfig:
     universe: list[str]
     benchmark: str
@@ -164,6 +169,7 @@ class AppConfig:
     killswitch: KillSwitchConfig = field(default_factory=KillSwitchConfig)
     sensitivity: SensitivityConfig = field(default_factory=SensitivityConfig)
     data_quality: DataQualityConfig = field(default_factory=DataQualityConfig)
+    database: DatabaseConfig = field(default_factory=DatabaseConfig)
 
 
 def load_config(path: str | Path) -> AppConfig:
@@ -182,11 +188,12 @@ def load_config(path: str | Path) -> AppConfig:
     killswitch = KillSwitchConfig(**raw.get("killswitch", {}))
     sensitivity = SensitivityConfig(**raw.get("sensitivity", {}))
     data_quality = DataQualityConfig(**raw.get("data_quality", {}))
+    database = DatabaseConfig(**raw.get("database", {}))
 
     base: dict[str, Any] = {
         k: v
         for k, v in raw.items()
-        if k not in {"macro", "news", "earnings", "broker", "strategy", "portfolio", "validation", "walkforward", "pretrade", "metarisk", "montecarlo", "killswitch", "sensitivity", "data_quality"}
+        if k not in {"macro", "news", "earnings", "broker", "strategy", "portfolio", "validation", "walkforward", "pretrade", "metarisk", "montecarlo", "killswitch", "sensitivity", "data_quality", "database"}
     }
     return AppConfig(
         **base,
@@ -204,4 +211,5 @@ def load_config(path: str | Path) -> AppConfig:
         killswitch=killswitch,
         sensitivity=sensitivity,
         data_quality=data_quality,
+        database=database,
     )

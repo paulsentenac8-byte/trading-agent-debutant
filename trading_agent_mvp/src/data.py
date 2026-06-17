@@ -8,15 +8,25 @@ import pandas as pd
 
 
 def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
-    rename_map = {c: str(c).strip().title() for c in df.columns}
-    df = df.rename(columns=rename_map)
+    if isinstance(df.columns, pd.MultiIndex):
+        if len(df.columns.levels) >= 2:
+            level0 = [str(x).strip().title() for x in df.columns.get_level_values(0)]
+            df.columns = level0
+        else:
+            df.columns = [str(c).strip().title() for c in df.columns]
+    else:
+        rename_map = {c: str(c).strip().title() for c in df.columns}
+        df = df.rename(columns=rename_map)
+
     expected = ["Open", "High", "Low", "Close", "Adj Close", "Volume"]
     for col in expected:
         if col not in df.columns and col != "Adj Close":
             raise ValueError(f"Colonne manquante dans les données: {col}")
     if "Adj Close" not in df.columns:
         df["Adj Close"] = df["Close"]
-    return df[["Open", "High", "Low", "Close", "Adj Close", "Volume"]].dropna()
+    out = df[["Open", "High", "Low", "Close", "Adj Close", "Volume"]].copy()
+    out = out.loc[:, ~out.columns.duplicated()]
+    return out.dropna()
 
 
 def _download_one_symbol(symbol: str, start_date: str, end_date: str, retries: int = 3, sleep_seconds: float = 1.5) -> pd.DataFrame | None:
