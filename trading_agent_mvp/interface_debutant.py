@@ -10,7 +10,7 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
-from src.storage import load_history_summary
+from src.storage import load_history_summary, load_learning_summary
 
 try:
     from streamlit_autorefresh import st_autorefresh
@@ -523,7 +523,9 @@ def main() -> None:
     data_quality_summary = read_json_safe(str(REPORTS_DIR / "data_quality_summary.json"))
     exposure_summary = read_json_safe(str(REPORTS_DIR / "exposure_summary.json"))
     decision_journal = read_json_safe(str(REPORTS_DIR / "decision_journal.json"))
-    history_summary = load_history_summary(cfg.get("database", {}).get("path", "data/trading_agent.sqlite")).to_dict() if cfg else {"runs": [], "recent_signals": [], "recent_orders": []}
+    db_path = cfg.get("database", {}).get("path", "data/trading_agent.sqlite") if cfg else "data/trading_agent.sqlite"
+    history_summary = load_history_summary(db_path).to_dict()
+    learning_summary = load_learning_summary(db_path).to_dict()
 
     show_hero(app_state, pipeline_status, cfg)
     show_action_center(action_center, risk_summary, pipeline_status)
@@ -629,6 +631,10 @@ def main() -> None:
     c17, c18 = st.columns(2)
     c17.metric("Scans mémorisés", len(history_summary.get("runs", [])))
     c18.metric("Signaux mémorisés", len(history_summary.get("recent_signals", [])))
+
+    c19, c20 = st.columns(2)
+    c19.metric("Signaux maturés", learning_summary.get("matured_signals", 0))
+    c20.metric("Win rate 20j", history_summary.get("signal_outcome_summary", {}).get("win_rate_20d", "n/a"))
 
     step1_done = bool(pipeline_status)
     step2_done = not ranked.empty
@@ -792,6 +798,12 @@ def main() -> None:
         else:
             st.info("Pas encore de résumé de validation.")
 
+        st.markdown("### Mémoire / apprentissage")
+        if learning_summary:
+            st.json(learning_summary)
+        else:
+            st.info("Pas encore de résumé d'apprentissage.")
+
         st.markdown("### Readiness")
         if readiness_summary:
             st.json(readiness_summary)
@@ -876,6 +888,9 @@ Au début, garde toujours le **mode démo uniquement**.
 
         with st.expander("Mémoire / historique"):
             st.json(history_summary or {"info": "Aucun historique disponible."})
+
+        with st.expander("Learning engine supervisé"):
+            st.json(learning_summary or {"info": "Aucun apprentissage disponible."})
 
         with st.expander("Anomalies détectées"):
             st.json(anomaly_summary or {"info": "Aucun résumé d'anomalies disponible."})
