@@ -45,7 +45,7 @@ from src.scalars import to_float, to_int
 from src.sector import apply_sector_limits
 from src.signals import MarketContext, infer_market_regime, rank_universe
 from src.sensitivity import run_sensitivity_analysis
-from src.storage import load_history_summary, store_pipeline_run
+from src.storage import load_history_summary, load_learning_summary, store_pipeline_run, update_signal_outcomes
 from src.stress import run_stress_tests
 from src.validation import build_validation_summary
 from src.walkforward import WalkForwardSummary, run_walkforward_analysis
@@ -622,6 +622,8 @@ def run_pipeline(config_path: str) -> None:
                     report_dir / "data_quality_summary.json",
                     report_dir / "decision_journal.json",
                     report_dir / "readiness_summary.json",
+                    report_dir / "history_summary.json",
+                    report_dir / "learning_summary.json",
                 ],
             )
             save_json_artifact("audit_manifest.json", audit_manifest.to_dict(), str(report_dir))
@@ -634,6 +636,8 @@ def run_pipeline(config_path: str) -> None:
                     "stress_test_summary": (report_dir / "stress_test_summary.json").exists(),
                     "walkforward_summary": (report_dir / "walkforward_summary.json").exists(),
                     "monitoring_summary": (report_dir / "monitoring_summary.json").exists(),
+                    "history_summary": (report_dir / "history_summary.json").exists(),
+                    "learning_summary": (report_dir / "learning_summary.json").exists(),
                     "audit_manifest": (report_dir / "audit_manifest.json").exists(),
                 }
             )
@@ -656,6 +660,8 @@ def run_pipeline(config_path: str) -> None:
                     report_dir / "data_quality_summary.json",
                     report_dir / "decision_journal.json",
                     report_dir / "readiness_summary.json",
+                    report_dir / "history_summary.json",
+                    report_dir / "learning_summary.json",
                     report_dir / "regression_checklist.json",
                     report_dir / "audit_manifest.json",
                 ],
@@ -717,6 +723,11 @@ def run_pipeline(config_path: str) -> None:
                     "kill_switch_blocked": kill_switch_summary.blocked if hasattr(kill_switch_summary, 'blocked') else bool(kill_switch_summary.get('blocked', False)),
                 },
             )
+            updated_outcomes = update_signal_outcomes(config.database.path, market_data)
+            history_summary = load_history_summary(config.database.path).to_dict()
+            learning_summary = load_learning_summary(config.database.path).to_dict()
+            save_json_artifact("history_summary.json", history_summary, str(report_dir))
+            save_json_artifact("learning_summary.json", learning_summary, str(report_dir))
 
             pipeline_status = {
                 "state": "completed",
@@ -744,6 +755,9 @@ def run_pipeline(config_path: str) -> None:
                 "anomaly_count": anomaly_summary.flagged_orders + anomaly_summary.flagged_signals,
                 "regression_status": regression_checklist.status,
                 "history_run_id": history_run_id,
+                "history_runs": len(history_summary.get("runs", [])),
+                "matured_signals": learning_summary.get("matured_signals", 0),
+                "updated_outcomes": updated_outcomes,
                 "database_path": config.database.path,
                 "report_dir": str(report_dir),
             }

@@ -65,30 +65,73 @@ def inject_css() -> None:
         """
         <style>
         #MainMenu, footer, header {visibility: hidden;}
-        .block-container {padding-top: 1rem; padding-bottom: 2rem; max-width: 1200px;}
+        :root {
+          --bg: #06070a;
+          --bg-soft: #0c1117;
+          --card: #10161f;
+          --card-2: #0f1722;
+          --line: #1f2937;
+          --text: #f3f4f6;
+          --muted: #94a3b8;
+          --green: #22c55e;
+          --yellow: #f59e0b;
+          --blue: #3b82f6;
+          --red: #ef4444;
+        }
+        html, body, [class*="css"] {
+          background: var(--bg) !important;
+          color: var(--text) !important;
+        }
+        .stApp,
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"],
+        section.main,
+        .main,
+        .main .block-container {
+          background: linear-gradient(180deg, #050608 0%, #0a0f16 100%) !important;
+          color: var(--text) !important;
+        }
+        [data-testid="stHeader"] {background: transparent !important;}
+        [data-testid="stSidebar"] {background: #0a0f16 !important; border-right: 1px solid var(--line);}        
+        .block-container {padding-top: 1rem; padding-bottom: 2rem; max-width: 1260px;}
+        h1, h2, h3, h4, h5, h6, p, li, label, div, span {color: var(--text) !important;}        
         div.stButton > button {
             border-radius: 12px;
-            padding: 0.7rem 1rem;
+            padding: 0.72rem 1rem;
             font-weight: 700;
+            border: 1px solid #243244;
+            background: linear-gradient(180deg, #111827, #0b1220) !important;
+            color: #f8fafc !important;
         }
+        div.stButton > button:hover {border-color: #3b82f6; color: white;}
+        [data-testid="stMetric"] {
+            background: linear-gradient(180deg, rgba(17,24,39,0.96), rgba(15,23,42,0.88)) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 16px;
+            padding: 14px 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        [data-testid="stMetricLabel"] {color: var(--muted);}        
         .hero {
-            background: linear-gradient(135deg, #0f172a, #1e293b 60%, #1d4ed8);
+            background: linear-gradient(135deg, #050b14, #0b1524 50%, #1d4ed8 100%);
             color: white;
-            padding: 1.2rem 1.4rem;
-            border-radius: 18px;
+            padding: 1.35rem 1.45rem;
+            border-radius: 20px;
             margin-bottom: 1rem;
+            border: 1px solid #1f2937;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
         }
-        .hero h1 {margin: 0; font-size: 1.8rem;}
-        .hero p {margin: 0.35rem 0 0 0; color: #dbeafe;}
+        .hero h1 {margin: 0; font-size: 2rem;}
+        .hero p {margin: 0.4rem 0 0 0; color: #cbd5e1;}
         .step-card {
-            border: 1px solid #dbe4ee;
+            border: 1px solid var(--line);
             border-radius: 16px;
             padding: 0.9rem 1rem;
-            background: white;
+            background: linear-gradient(180deg, #0c1117, #0b1220);
             min-height: 130px;
         }
-        .step-done {border-left: 8px solid #16a34a;}
-        .step-wait {border-left: 8px solid #f59e0b;}
+        .step-done {border-left: 8px solid var(--green);}
+        .step-wait {border-left: 8px solid var(--yellow);}
         .pill {
             display: inline-block;
             padding: 0.3rem 0.7rem;
@@ -97,18 +140,38 @@ def inject_css() -> None:
             font-weight: 700;
             margin-right: 0.4rem;
             margin-bottom: 0.4rem;
+            border: 1px solid rgba(255,255,255,0.08);
         }
-        .pill-green {background: #dcfce7; color: #166534;}
-        .pill-yellow {background: #fef3c7; color: #92400e;}
-        .pill-blue {background: #dbeafe; color: #1d4ed8;}
+        .pill-green {background: rgba(34,197,94,0.12); color: #86efac;}
+        .pill-yellow {background: rgba(245,158,11,0.12); color: #fcd34d;}
+        .pill-blue {background: rgba(59,130,246,0.12); color: #93c5fd;}
         .trade-card {
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--line);
             border-radius: 16px;
             padding: 1rem;
-            background: #ffffff;
+            background: linear-gradient(180deg, #0f1722, #0b1220);
             margin-bottom: 0.8rem;
         }
-        .small-muted {color: #6b7280; font-size: 0.92rem;}
+        .small-muted {color: var(--muted); font-size: 0.92rem;}
+        [data-testid="stExpander"] {
+            background: rgba(15,23,42,0.65) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px;
+        }
+        [data-testid="stMarkdownContainer"], .stAlert {
+            background: transparent !important;
+        }
+        [data-testid="stDataFrame"] {border: 1px solid var(--line) !important; border-radius: 14px; overflow: hidden; background: #0f1722 !important;}
+        [data-testid="stDataFrame"] * {background: transparent !important; color: var(--text) !important;}
+        .stTabs [data-baseweb="tab-list"] {gap: 8px;}
+        .stTabs [data-baseweb="tab"] {
+            background: #0c1117;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            color: #e5e7eb;
+            padding: 10px 14px;
+        }
+        .stTabs [aria-selected="true"] {background: #111827; border-color: #3b82f6;}
         </style>
         """,
         unsafe_allow_html=True,
@@ -651,7 +714,7 @@ def main() -> None:
     with s4:
         show_step_card("4. Préparation broker", step4_done, "Le système prépare l'envoi au broker démo automatiquement.")
 
-    tab1, tab2, tab3, tab4 = st.tabs(["Vue guidée", "Autoriser les trades", "Marché expliqué simplement", "Détails et aide"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Vue guidée", "Autoriser les trades", "Marché expliqué simplement", "Historique & learning", "Détails et aide"])
 
     with tab1:
         st.subheader("Les meilleures idées du moment")
@@ -839,6 +902,53 @@ def main() -> None:
             st.info("Pas encore de résumé monitoring.")
 
     with tab4:
+        st.subheader("Historique & learning")
+
+        runs_df = pd.DataFrame(history_summary.get("runs", []))
+        run_timeseries_df = pd.DataFrame(history_summary.get("run_timeseries", []))
+        recent_orders_df = pd.DataFrame(history_summary.get("recent_orders", []))
+        recent_signals_df = pd.DataFrame(history_summary.get("recent_signals", []))
+        best_symbols_df = pd.DataFrame(history_summary.get("best_symbols_20d", []))
+        outcome_summary = history_summary.get("signal_outcome_summary", {})
+
+        if not run_timeseries_df.empty:
+            if "created_at" in run_timeseries_df.columns:
+                run_timeseries_df["created_at"] = pd.to_datetime(run_timeseries_df["created_at"], errors="coerce")
+                run_timeseries_df = run_timeseries_df.dropna(subset=["created_at"]).set_index("created_at")
+            st.markdown("### Évolution des scans")
+            cols = [c for c in ["health_score", "readiness_score", "ranked_count", "orders_count"] if c in run_timeseries_df.columns]
+            if cols:
+                st.line_chart(run_timeseries_df[cols], height=280)
+        else:
+            st.info("Pas encore assez d'historique pour afficher un graphique d'évolution.")
+
+        h1, h2, h3 = st.columns(3)
+        h1.metric("Runs historiques", len(history_summary.get("runs", [])))
+        h2.metric("Signaux maturés", learning_summary.get("matured_signals", 0))
+        h3.metric("Win rate 20j", outcome_summary.get("win_rate_20d", "n/a"))
+
+        st.markdown("### Résumé outcomes")
+        st.json(outcome_summary or {"info": "Pas encore assez de signaux maturés."})
+
+        st.markdown("### Recommandations du learning engine")
+        if learning_summary:
+            st.json(learning_summary)
+        else:
+            st.info("Pas encore de résumé d'apprentissage.")
+
+        if not best_symbols_df.empty:
+            st.markdown("### Meilleurs symboles observés (20j)")
+            st.dataframe(best_symbols_df, use_container_width=True, hide_index=True)
+
+        if not recent_signals_df.empty:
+            st.markdown("### Derniers signaux mémorisés")
+            st.dataframe(recent_signals_df.head(20), use_container_width=True, hide_index=True)
+
+        if not recent_orders_df.empty:
+            st.markdown("### Derniers ordres proposés")
+            st.dataframe(recent_orders_df.head(20), use_container_width=True, hide_index=True)
+
+    with tab5:
         st.subheader("Détails et aide")
         st.markdown(
             """

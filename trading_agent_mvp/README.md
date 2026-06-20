@@ -18,6 +18,8 @@ Base de trading orientée actions / ETF avec :
 - diagnostics de performance vs benchmark,
 - qualité de données,
 - mémoire / historique SQLite,
+- tracking des outcomes des signaux,
+- learning engine supervisé initial,
 - journal de décision,
 - audit manifest,
 - santé broker / monitoring,
