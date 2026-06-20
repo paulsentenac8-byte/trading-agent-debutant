@@ -1,0 +1,120 @@
+{
+  "universe": [
+    "SPY", "QQQ", "IWM", "DIA", "XLK", "XLF", "XLV", "XLI", "XLE", "XLP",
+    "AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "TSLA", "JPM", "XOM", "JNJ"
+  ],
+  "benchmark": "SPY",
+  "start_date": "2023-01-01",
+  "initial_capital": 100000,
+  "max_positions": 5,
+  "risk_per_trade": 0.01,
+  "max_position_weight": 0.2,
+  "max_portfolio_drawdown": 0.15,
+  "min_avg_dollar_volume": 50000000,
+  "min_price": 10,
+  "rebalance_frequency": "W-FRI",
+  "transaction_cost_bps": 10,
+  "macro_bias": 0.0,
+  "news_bias": 0.0,
+  "regime_override": null,
+  "report_dir": "reports",
+  "macro": {
+    "enabled": true,
+    "series": {
+      "cpi": "CPIAUCSL",
+      "unemployment": "UNRATE",
+      "fed_funds": "FEDFUNDS",
+      "vix": "VIXCLS",
+      "ten_year_yield": "DGS10",
+      "yield_curve_10y_2y": "T10Y2Y"
+    }
+  },
+  "news": {
+    "enabled": true,
+    "max_articles_per_symbol": 8,
+    "market_symbols": ["SPY", "QQQ", "XLK", "XLF"]
+  },
+  "earnings": {
+    "enabled": true,
+    "days_ahead": 14,
+    "penalty_days_high": 3,
+    "penalty_days_medium": 7
+  },
+  "broker": {
+    "mode": "manual",
+    "currency": "USD",
+    "exchange": "SMART",
+    "ibkr_host": "127.0.0.1",
+    "ibkr_port": 7497,
+    "client_id": 7,
+    "account": null,
+    "paper_only": true
+  },
+  "strategy": {
+    "min_score": 1.5,
+    "use_breadth_filter": true,
+    "breadth_risk_off_threshold": -0.35,
+    "breadth_full_risk_threshold": 0.25,
+    "allow_long_only_in_bear": false
+  },
+  "portfolio": {
+    "max_pairwise_correlation": 0.8,
+    "min_cash_buffer": 0.1,
+    "rebalance_to_cash_in_bear": true,
+    "max_sector_positions": 2,
+    "max_sector_allocation_pct": 0.35,
+    "max_gross_exposure_pct": 0.9
+  },
+  "validation": {
+    "min_eligible_symbols": 5,
+    "min_ranked_symbols": 3,
+    "max_data_error_count": 10
+  },
+  "walkforward": {
+    "enabled": true,
+    "train_months": 12,
+    "test_months": 3,
+    "max_windows": 8
+  },
+  "pretrade": {
+    "max_total_risk_pct": 0.04,
+    "max_single_name_risk_pct": 0.015,
+    "max_order_adv_fraction": 0.02,
+    "max_stop_pct": 0.12
+  },
+  "metarisk": {
+    "enabled": true,
+    "min_health_score": 70,
+    "min_walkforward_windows": 3,
+    "min_walkforward_mean_sharpe": -0.1,
+    "max_stress_loss_pct": 0.12,
+    "hard_block_breadth_threshold": -0.55
+  },
+  "montecarlo": {
+    "enabled": true,
+    "n_sims": 500,
+    "horizon_days": 252,
+    "random_seed": 42
+  },
+  "killswitch": {
+    "enabled": true,
+    "min_health_score": 55,
+    "min_meta_confidence": 45,
+    "max_prob_negative_return": 0.65,
+    "max_stress_loss_pct": 0.18,
+    "max_order_count": 8
+  },
+  "sensitivity": {
+    "enabled": true,
+    "min_score_step": 0.5,
+    "max_positions_step": 2
+  },
+  "data_quality": {
+    "min_history_bars": 220,
+    "max_stale_days": 7,
+    "min_coverage_ratio": 0.8
+  },
+  "database": {
+    "path": "data/trading_agent.sqlite"
+  }
+}
